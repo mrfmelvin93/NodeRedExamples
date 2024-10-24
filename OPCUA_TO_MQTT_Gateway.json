@@ -1,0 +1,270 @@
+[
+    {
+        "id": "5199fbd4.d70cec",
+        "type": "tab",
+        "label": "OPCUA to MQTT Gatway",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "3541f73d.f3ba28",
+        "type": "OPCUA-IIoT-Inject",
+        "z": "5199fbd4.d70cec",
+        "injectType": "listen",
+        "payload": "{ \"interval\": 500, \"queueSize\": 10 }",
+        "payloadType": "json",
+        "topic": "",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "startDelay": "",
+        "name": "Start Subscription",
+        "addressSpaceItems": [
+            {
+                "name": "Counter",
+                "nodeId": "ns=4;s=AirConditioner_1.Temperature",
+                "datatypeName": ""
+            },
+            {
+                "name": "FullCounter",
+                "nodeId": "ns=1;s=FullCounter",
+                "datatypeName": ""
+            }
+        ],
+        "x": 190,
+        "y": 300,
+        "wires": [
+            [
+                "a8972b2d.2013f"
+            ]
+        ]
+    },
+    {
+        "id": "53aa4e70.57ae7",
+        "type": "OPCUA-IIoT-Response",
+        "z": "5199fbd4.d70cec",
+        "name": "",
+        "compressStructure": false,
+        "showStatusActivities": false,
+        "showErrors": false,
+        "activateUnsetFilter": false,
+        "activateFilters": false,
+        "negateFilter": false,
+        "filters": [],
+        "x": 720,
+        "y": 220,
+        "wires": [
+            [
+                "51c0c231.e5de74"
+            ]
+        ]
+    },
+    {
+        "id": "51c0c231.e5de74",
+        "type": "debug",
+        "z": "5199fbd4.d70cec",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1050,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "d661a888.37c9b8",
+        "type": "OPCUA-IIoT-Node",
+        "z": "5199fbd4.d70cec",
+        "injectType": "listen",
+        "nodeId": "ns=4;i=AirConditioner_1.Temperature",
+        "datatype": "Double",
+        "value": "",
+        "name": "",
+        "topic": "",
+        "showErrors": false,
+        "x": 330,
+        "y": 200,
+        "wires": [
+            [
+                "a8972b2d.2013f"
+            ]
+        ]
+    },
+    {
+        "id": "b33230a1.8a2d8",
+        "type": "debug",
+        "z": "5199fbd4.d70cec",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1050,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "7b9f4f56.422f58",
+        "type": "inject",
+        "z": "5199fbd4.d70cec",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 200,
+        "wires": [
+            [
+                "d661a888.37c9b8"
+            ]
+        ]
+    },
+    {
+        "id": "a8972b2d.2013f",
+        "type": "OPCUA-IIoT-Listener",
+        "z": "5199fbd4.d70cec",
+        "connector": "b98f961f.940bf",
+        "action": "subscribe",
+        "queueSize": 10,
+        "name": "",
+        "topic": "",
+        "justValue": true,
+        "useGroupItems": false,
+        "showStatusActivities": false,
+        "showErrors": false,
+        "x": 520,
+        "y": 300,
+        "wires": [
+            [
+                "53aa4e70.57ae7",
+                "4178fe5e.f20bd"
+            ]
+        ]
+    },
+    {
+        "id": "4178fe5e.f20bd",
+        "type": "OPCUA-IIoT-Result-Filter",
+        "z": "5199fbd4.d70cec",
+        "nodeId": "ns=4;s=AirConditioner_1.Temperature",
+        "datatype": "Double",
+        "fixedValue": true,
+        "fixPoint": 2,
+        "withPrecision": false,
+        "precision": 2,
+        "entry": 1,
+        "justValue": true,
+        "withValueCheck": false,
+        "minvalue": "",
+        "maxvalue": "",
+        "defaultvalue": "",
+        "topic": "",
+        "name": "",
+        "showErrors": false,
+        "x": 810,
+        "y": 300,
+        "wires": [
+            [
+                "b33230a1.8a2d8",
+                "7124cacb6b286794"
+            ]
+        ]
+    },
+    {
+        "id": "7124cacb6b286794",
+        "type": "mqtt out",
+        "z": "5199fbd4.d70cec",
+        "name": "",
+        "topic": "opcua/mqtt/gateway",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "01ec0bf0fe6c95ef",
+        "x": 960,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "b98f961f.940bf",
+        "type": "OPCUA-IIoT-Connector",
+        "z": "5199fbd4.d70cec",
+        "discoveryUrl": "",
+        "endpoint": "opc.tcp://5CD20443C3:48010",
+        "endpointMustExist": false,
+        "keepSessionAlive": true,
+        "loginEnabled": false,
+        "name": "LOCAL DEMO SERVER",
+        "showErrors": false,
+        "securityPolicy": "None",
+        "securityMode": "None",
+        "individualCerts": false,
+        "publicCertificateFile": "",
+        "privateKeyFile": "",
+        "defaultSecureTokenLifetime": "60000",
+        "autoSelectRightEndpoint": false,
+        "strategyMaxRetry": "",
+        "strategyInitialDelay": "",
+        "strategyMaxDelay": "",
+        "strategyRandomisationFactor": "",
+        "requestedSessionTimeout": "",
+        "connectionStartDelay": "",
+        "reconnectDelay": "",
+        "maxBadSessionRequests": ""
+    },
+    {
+        "id": "01ec0bf0fe6c95ef",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

@@ -1,0 +1,389 @@
+[
+    {
+        "id": "96df9d1b.b1b87",
+        "type": "tab",
+        "label": "MQTT to OPC UA Gateway",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "32e33b26.ffaa34",
+        "type": "function",
+        "z": "96df9d1b.b1b87",
+        "name": "set flow context Outputs",
+        "func": "// Map topic to corresponding isoOutput variable\nswitch (msg.topic) {\n    case \"paste/yourtopic/here1\":\n        flow.set('isoOutput1', msg.payload);\n        break;\n    case \"paste/yourtopic/here2\":\n        flow.set('isoOutput2', msg.payload);\n        break;\n    case \"paste/yourtopic/here3\":\n        flow.set('isoOutput3', msg.payload);\n        break;\n    case \"paste/yourtopic/here4\":\n        flow.set('isoOutput4', msg.payload);\n        break;\n    case \"paste/yourtopic/here5\":\n        flow.set('isoOutput5', msg.payload);\n        break;\n    case \"paste/yourtopic/here6\":\n        flow.set('isoOutput6', msg.payload);\n        break;\n    case \"paste/yourtopic/here7\":\n        flow.set('isoOutput7', msg.payload);\n        break;\n    case \"paste/yourtopic/here8\":\n        flow.set('isoOutput8', msg.payload);\n        break;\n}\n\nmsg.payload = [\n    flow.get('isoOutput1'),\n    flow.get('isoOutput2'),\n    flow.get('isoOutput3'),\n    flow.get('isoOutput4'),\n    flow.get('isoOutput5'),\n    flow.get('isoOutput6'),\n    flow.get('isoOutput7'),\n    flow.get('isoOutput8'),\n]\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 400,
+        "wires": [
+            [
+                "463d4abe.8847ec"
+            ]
+        ]
+    },
+    {
+        "id": "463d4abe.8847ec",
+        "type": "debug",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 950,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "af7aa8a.6c2e058",
+        "type": "OPCUA-IIoT-Flex-Server",
+        "z": "96df9d1b.b1b87",
+        "port": "55480",
+        "endpoint": "",
+        "acceptExternalCommands": true,
+        "maxAllowedSessionNumber": "",
+        "maxConnectionsPerEndpoint": "",
+        "maxAllowedSubscriptionNumber": "",
+        "alternateHostname": "",
+        "name": "",
+        "showStatusActivities": false,
+        "showErrors": false,
+        "allowAnonymous": true,
+        "individualCerts": false,
+        "isAuditing": false,
+        "serverDiscovery": true,
+        "users": [],
+        "xmlsets": [],
+        "publicCertificateFile": "",
+        "privateCertificateFile": "",
+        "registerServerMethod": "1",
+        "discoveryServerEndpointUrl": "",
+        "capabilitiesForMDNS": "",
+        "maxNodesPerRead": 1000,
+        "maxNodesPerBrowse": 2000,
+        "delayToClose": 1000,
+        "addressSpaceScript": "function constructAlarmAddressSpace(server, addressSpace, eventObjects, done) {\n  // server = the created node-opcua server\n  // addressSpace = script placeholder\n  // eventObjects = to hold event variables in memory from this script\n\n  // internal global sandbox objects are \n  // node = node of the flex server, \n  // coreServer = core iiot server object for debug and access to nodeOPCUA,\n  // and scriptObjects to hold variables and functions\n  const LocalizedText = opcua.LocalizedText;\n  const namespace = addressSpace.getOwnNamespace();\n\n  coreServer.internalDebugLog('init dynamic address space')\n  node.warn('construct new address space for OPC UA')\n\n  const Variant = opcua.Variant;\n  const DataType = opcua.DataType;\n  const DataValue = opcua.DataValue;\n\n  var flexServerInternals = this;\n\n  this.sandboxFlowContext.set(\"isoInput1\", 0);\n  this.sandboxFlowContext.set(\"isoInput2\", 0);\n  this.sandboxFlowContext.set(\"isoInput3\", 0);\n  this.sandboxFlowContext.set(\"isoInput4\", 0);\n  this.sandboxFlowContext.set(\"isoInput5\", 0);\n  this.sandboxFlowContext.set(\"isoInput6\", 0);\n  this.sandboxFlowContext.set(\"isoInput7\", 0);\n  this.sandboxFlowContext.set(\"isoInput8\", 0);\n\n  this.sandboxFlowContext.set(\"isoOutput1\", 0);\n  this.sandboxFlowContext.set(\"isoOutput2\", 0);\n  this.sandboxFlowContext.set(\"isoOutput3\", 0);\n  this.sandboxFlowContext.set(\"isoOutput4\", 0);\n  this.sandboxFlowContext.set(\"isoOutput5\", 0);\n  this.sandboxFlowContext.set(\"isoOutput6\", 0);\n  this.sandboxFlowContext.set(\"isoOutput7\", 0);\n  this.sandboxFlowContext.set(\"isoOutput8\", 0);\n\n  coreServer.internalDebugLog(\"init dynamic address space\");\n  const rootFolder = addressSpace.findNode(\"RootFolder\");\n\n  node.warn(\"construct new address space for OPC UA\");\n\n  const myDevice = namespace.addFolder(rootFolder.objects, {\n    \"browseName\": \"RaspberryPI-Zero-WLAN\"\n  });\n  const gpioFolder = namespace.addFolder(myDevice, { \"browseName\": \"GPIO\" });\n  const isoInputs = namespace.addFolder(gpioFolder, {\n    \"browseName\": \"Inputs\"\n  });\n  const isoOutputs = namespace.addFolder(gpioFolder, {\n    \"browseName\": \"MQTT_to_OPCUA\"\n  });\n\n  const gpioDI1 = namespace.addVariable({\n    \"organizedBy\": isoInputs,\n    \"browseName\": \"I1\",\n    \"nodeId\": \"ns=1;s=Isolated_Input1\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoInput1\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoInput1\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDI2 = namespace.addVariable({\n    \"organizedBy\": isoInputs,\n    \"browseName\": \"I2\",\n    \"nodeId\": \"ns=1;s=Isolated_Input2\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoInput2\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoInput2\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDI3 = namespace.addVariable({\n    \"organizedBy\": isoInputs,\n    \"browseName\": \"I3\",\n    \"nodeId\": \"ns=1;s=Isolated_Input3\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoInput3\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoInput3\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDI4 = namespace.addVariable({\n    \"organizedBy\": isoInputs,\n    \"browseName\": \"I4\",\n    \"nodeId\": \"ns=1;s=Isolated_Input4\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoInput4\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoInput4\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDI5 = namespace.addVariable({\n    \"organizedBy\": isoInputs,\n    \"browseName\": \"I5\",\n    \"nodeId\": \"ns=1;s=Isolated_Input5\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoInput5\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoInput5\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDI6 = namespace.addVariable({\n    \"organizedBy\": isoInputs,\n    \"browseName\": \"I6\",\n    \"nodeId\": \"ns=1;s=Isolated_Input6\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoInput6\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoInput6\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDI7 = namespace.addVariable({\n    \"organizedBy\": isoInputs,\n    \"browseName\": \"I7\",\n    \"nodeId\": \"ns=1;s=Isolated_Input7\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoInput7\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoInput7\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDI8 = namespace.addVariable({\n    \"organizedBy\": isoInputs,\n    \"browseName\": \"I8\",\n    \"nodeId\": \"ns=1;s=Isolated_Input8\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoInput8\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoInput8\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDO1 = namespace.addVariable({\n    \"organizedBy\": isoOutputs,\n    \"browseName\": \"O1\",\n    \"nodeId\": \"ns=1;s=Isolated_Output1\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoOutput1\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoOutput1\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDO2 = namespace.addVariable({\n    \"organizedBy\": isoOutputs,\n    \"browseName\": \"O2\",\n    \"nodeId\": \"ns=1;s=Isolated_Output2\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoOutput2\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoOutput2\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDO3 = namespace.addVariable({\n    \"organizedBy\": isoOutputs,\n    \"browseName\": \"O3\",\n    \"nodeId\": \"ns=1;s=Isolated_Output3\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoOutput3\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoOutput3\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDO4 = namespace.addVariable({\n    \"organizedBy\": isoOutputs,\n    \"browseName\": \"O4\",\n    \"nodeId\": \"ns=1;s=Isolated_Output4\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoOutput4\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoOutput4\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDO5 = namespace.addVariable({\n    \"organizedBy\": isoOutputs,\n    \"browseName\": \"O5\",\n    \"nodeId\": \"ns=1;s=Isolated_Output5\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoOutput5\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoOutput5\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDO6 = namespace.addVariable({\n    \"organizedBy\": isoOutputs,\n    \"browseName\": \"O6\",\n    \"nodeId\": \"ns=1;s=Isolated_Output6\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoOutput6\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoOutput6\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDO7 = namespace.addVariable({\n    \"organizedBy\": isoOutputs,\n    \"browseName\": \"O7\",\n    \"nodeId\": \"ns=1;s=Isolated_Output7\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoOutput7\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoOutput7\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  const gpioDO8 = namespace.addVariable({\n    \"organizedBy\": isoOutputs,\n    \"browseName\": \"O8\",\n    \"nodeId\": \"ns=1;s=Isolated_Output8\",\n    \"dataType\": \"Double\",\n    \"value\": {\n      \"get\": function () {\n        return new Variant({\n          \"dataType\": DataType.Double,\n          \"value\": flexServerInternals.sandboxFlowContext.get(\"isoOutput8\")\n        });\n      },\n      \"set\": function (variant) {\n        flexServerInternals.sandboxFlowContext.set(\n          \"isoOutput8\",\n          parseFloat(variant.value)\n        );\n        return opcua.StatusCodes.Good;\n      }\n    }\n  });\n\n  //------------------------------------------------------------------------------\n  // Add a view\n  //------------------------------------------------------------------------------\n  const viewDI = namespace.addView({\n    \"organizedBy\": rootFolder.views,\n    \"browseName\": \"RPIW0-Digital-Ins\"\n  });\n\n  const viewDO = namespace.addView({\n    \"organizedBy\": rootFolder.views,\n    \"browseName\": \"RPIW0-Digital-Outs\"\n  });\n\n  viewDI.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDI1.nodeId\n  });\n\n  viewDI.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDI2.nodeId\n  });\n\n  viewDI.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDI3.nodeId\n  });\n\n  viewDI.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDI4.nodeId\n  });\n\n  viewDI.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDI5.nodeId\n  });\n\n  viewDI.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDI6.nodeId\n  });\n\n  viewDI.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDI7.nodeId\n  });\n\n  viewDI.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDI8.nodeId\n  });\n\n  viewDO.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDO1.nodeId\n  });\n\n  viewDO.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDO2.nodeId\n  });\n\n  viewDO.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDO3.nodeId\n  });\n\n  viewDO.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDO4.nodeId\n  });\n\n  viewDO.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDO5.nodeId\n  });\n\n  viewDO.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDO6.nodeId\n  });\n\n  viewDO.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDO7.nodeId\n  });\n\n  viewDO.addReference({\n    \"referenceType\": \"Organizes\",\n    \"nodeId\": gpioDO8.nodeId\n  });\n\n  coreServer.internalDebugLog(\"create dynamic address space done\");\n  node.warn(\"construction of new address space for OPC UA done\");\n\n  done();\n}",
+        "x": 1210,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "605a707858db5627",
+        "type": "mqtt in",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9c489b8f5304a286",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 200,
+        "wires": [
+            [
+                "32e33b26.ffaa34",
+                "2e49ef4cad52dad1"
+            ]
+        ]
+    },
+    {
+        "id": "2e49ef4cad52dad1",
+        "type": "debug",
+        "z": "96df9d1b.b1b87",
+        "name": "MQTT value subscribed",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "223c2797c96a4448",
+        "type": "mqtt out",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here4",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7831be1286dc9735",
+        "x": 560,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "3d00cc3d1a5f6f1b",
+        "type": "inject",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "120",
+        "payloadType": "num",
+        "x": 290,
+        "y": 840,
+        "wires": [
+            [
+                "223c2797c96a4448"
+            ]
+        ]
+    },
+    {
+        "id": "9448b7cac3f063c6",
+        "type": "comment",
+        "z": "96df9d1b.b1b87",
+        "name": "Test Interface",
+        "info": "change the topic name and test the values changing on the \nserver side of the output folder",
+        "x": 650,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "e776e3cc94abcc99",
+        "type": "mqtt in",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here2",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9c489b8f5304a286",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 260,
+        "wires": [
+            [
+                "32e33b26.ffaa34"
+            ]
+        ]
+    },
+    {
+        "id": "5f54df3314d0b879",
+        "type": "mqtt in",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here3",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9c489b8f5304a286",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 320,
+        "wires": [
+            [
+                "32e33b26.ffaa34"
+            ]
+        ]
+    },
+    {
+        "id": "ba6c6a508569da16",
+        "type": "mqtt in",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here4",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9c489b8f5304a286",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 380,
+        "wires": [
+            [
+                "32e33b26.ffaa34"
+            ]
+        ]
+    },
+    {
+        "id": "c3eec12ef61163a7",
+        "type": "mqtt in",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here5",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9c489b8f5304a286",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 440,
+        "wires": [
+            [
+                "32e33b26.ffaa34"
+            ]
+        ]
+    },
+    {
+        "id": "4e9be7a0bb398b80",
+        "type": "mqtt in",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here6",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9c489b8f5304a286",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 500,
+        "wires": [
+            [
+                "32e33b26.ffaa34"
+            ]
+        ]
+    },
+    {
+        "id": "145429fadbf133cb",
+        "type": "mqtt in",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here7",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9c489b8f5304a286",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 560,
+        "wires": [
+            [
+                "32e33b26.ffaa34"
+            ]
+        ]
+    },
+    {
+        "id": "98ff90aa3d4d9388",
+        "type": "mqtt in",
+        "z": "96df9d1b.b1b87",
+        "name": "",
+        "topic": "paste/yourtopic/here8",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9c489b8f5304a286",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 620,
+        "wires": [
+            [
+                "32e33b26.ffaa34"
+            ]
+        ]
+    },
+    {
+        "id": "4e383365e6611c95",
+        "type": "comment",
+        "z": "96df9d1b.b1b87",
+        "name": "<HOSTNAME>:55480/",
+        "info": "change the topic name and test the values changing on the \nserver side of the output folder",
+        "x": 1260,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "9c489b8f5304a286",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "7831be1286dc9735",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
